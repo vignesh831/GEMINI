@@ -4,6 +4,13 @@ const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 
+app.use(
+  cors({
+    origin: "https://gemini-clone-xi-navy.vercel.app",
+    methods: ["GET", "POST"],
+  })
+);
+
 
 app.use(express.json());
 require("dotenv").config(); // Load environment variables
