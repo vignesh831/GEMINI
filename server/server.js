@@ -5,7 +5,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 app.use(
   cors({
-    origin: ["https://gemini-clone-xi-navy.vercel.app/"], // Allow only this origin
+    origin: "https://gemini-clone-xi-navy.vercel.app", // Allow only this origin
     methods: ["GET", "POST"], // Restrict methods
   })
 );
