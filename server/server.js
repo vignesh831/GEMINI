@@ -20,7 +20,7 @@ app.post("/chat", async (req, res) => {
 
   const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const genAI = new GoogleGenerativeAI("AIzaSyD7aB7IF6NPB74izsMDaJi7h6kztKxgqRo");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const prompt = message;
