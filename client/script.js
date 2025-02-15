@@ -1,49 +1,69 @@
-const express = require("express");
-const cors = require("cors");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-require("dotenv").config(); // Load environment variables
+const chatMessages = document.getElementById("chatMessages");
+const userInput = document.getElementById("userInput");
+const sendButton = document.getElementById("sendButton");
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+// Enable send button when input is not empty
+userInput.addEventListener("input", () => {
+    sendButton.disabled = userInput.value.trim() === "";
+});
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Send message on button click
+sendButton.addEventListener("click", sendMessage);
 
-let conversationHistory = []; // Store past messages
-
-app.post("/chat", async (req, res) => {
-    const { message } = req.body;
-    if (!message) return res.status(400).json({ reply: "Message cannot be empty" });
-
-    // Add user message to history
-    conversationHistory.push({ role: "user", text: message });
-
-    // Keep only the last 5 exchanges to limit history
-    if (conversationHistory.length > 10) {
-        conversationHistory.shift(); // Remove the oldest entry
+// Send message on Enter key press (without Shift)
+userInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
     }
+});
 
-    // Prepare prompt with history
-    const formattedHistory = conversationHistory
-        .map(entry => `${entry.role === "user" ? "User: " : "Gemini: "}${entry.text}`)
-        .join("\n");
+async function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    // Display user message
+    displayMessage(message, "user");
+
+    // Disable input & button while processing
+    userInput.value = "";
+    sendButton.disabled = true;
 
     try {
-        const result = await model.generateContent(formattedHistory);
-        const botReply = result.response.text().trim();
+        const response = await fetch("http://localhost:5000/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
 
-        // Add AI response to history
-        conversationHistory.push({ role: "bot", text: botReply });
-
-        res.json({ reply: botReply });
+        const data = await response.json();
+        displayMessage(data.reply, "bot");
     } catch (error) {
-        console.error("Error generating response:", error);
-        res.status(500).json({ reply: "Sorry, an error occurred while processing your request." });
+        console.error("Error:", error);
+        displayMessage("Error: Unable to reach the server.", "bot");
     }
-});
 
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+    // Re-enable input & button
+    sendButton.disabled = false;
+}
+
+// Function to display messages
+function displayMessage(text, sender) {
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message", sender === "user" ? "user-message" : "bot-message");
+
+    const avatar = document.createElement("div");
+    avatar.classList.add("avatar", sender === "user" ? "user-avatar" : "bot-avatar");
+    avatar.textContent = sender === "user" ? "U" : "G";
+
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("message-content");
+    contentDiv.innerHTML = `<p>${text}</p>`;
+
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(contentDiv);
+    chatMessages.appendChild(messageDiv);
+
+    // Auto-scroll to latest message
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
