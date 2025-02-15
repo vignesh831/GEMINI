@@ -1,69 +1,113 @@
-const chatMessages = document.getElementById("chatMessages");
-const userInput = document.getElementById("userInput");
-const sendButton = document.getElementById("sendButton");
+const chatMessages = document.getElementById('chatMessages');
+const userInput = document.getElementById('userInput');
+const sendButton = document.getElementById('sendButton');
 
-// Enable send button when input is not empty
-userInput.addEventListener("input", () => {
-    sendButton.disabled = userInput.value.trim() === "";
+function formatMessage(text) {
+    let paragraphs = text.split(/\n\n+/).map(para => {
+        para = para.replace(/\*(.*?)\*/g, '<em>$1</em>')  // Italics
+                   .replace(/`([^`]+)`/g, '<code>$1</code>') // Inline code
+                   .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => 
+                        `<pre><code>${code.trim()}</code></pre>`
+                   );
+        return `<p>${para.trim()}</p>`;
+    });
+
+    return paragraphs.join('');
+}
+
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+userInput.addEventListener('input', function() {
+    autoResize(this);
+    sendButton.disabled = !this.value.trim();
 });
 
-// Send message on button click
-sendButton.addEventListener("click", sendMessage);
+function addLoadingMessage() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
+    messageDiv.id = 'loadingMessage';
 
-// Send message on Enter key press (without Shift)
-userInput.addEventListener("keypress", (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-    }
-});
+    messageDiv.innerHTML = `
+        <div class="avatar bot-avatar">G</div>
+        <div class="message-content loading">
+            <div class="loading-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    `;
+
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function removeLoadingMessage() {
+    const loadingMessage = document.getElementById('loadingMessage');
+    if (loadingMessage) loadingMessage.remove();
+}
 
 async function sendMessage() {
     const message = userInput.value.trim();
     if (!message) return;
 
-    // Display user message
-    displayMessage(message, "user");
-
-    // Disable input & button while processing
-    userInput.value = "";
+    addMessage(message, true);
+    userInput.value = '';
+    userInput.style.height = 'auto';
     sendButton.disabled = true;
 
+    addLoadingMessage();
+
     try {
-        const response = await fetch("http://localhost:5000/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+        const response = await fetch('http://localhost:5000/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message })
         });
 
         const data = await response.json();
-        displayMessage(data.reply, "bot");
+        removeLoadingMessage();
+        addMessage(data.reply || 'I encountered an error processing your request.', false);
     } catch (error) {
-        console.error("Error:", error);
-        displayMessage("Error: Unable to reach the server.", "bot");
+        console.error('Error:', error);
+        removeLoadingMessage();
+        addMessage('Sorry, there was an issue. Please check if the server is running and try again.', false);
     }
-
-    // Re-enable input & button
-    sendButton.disabled = false;
 }
 
-// Function to display messages
-function displayMessage(text, sender) {
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("message", sender === "user" ? "user-message" : "bot-message");
+function addMessage(content, isUser) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
 
-    const avatar = document.createElement("div");
-    avatar.classList.add("avatar", sender === "user" ? "user-avatar" : "bot-avatar");
-    avatar.textContent = sender === "user" ? "U" : "G";
+    messageDiv.innerHTML = `
+        <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">${isUser ? 'U' : 'G'}</div>
+        <div class="message-content">${isUser ? content : formatMessage(content)}</div>
+    `;
 
-    const contentDiv = document.createElement("div");
-    contentDiv.classList.add("message-content");
-    contentDiv.innerHTML = `<p>${text}</p>`;
-
-    messageDiv.appendChild(avatar);
-    messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
 
-    // Auto-scroll to latest message
+function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
+// Event Listeners
+sendButton.addEventListener('click', sendMessage);
+userInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// Adjust padding dynamically
+function updateChatPadding() {
+    const inputHeight = document.querySelector('.input-wrapper').offsetHeight;
+    chatMessages.style.paddingBottom = `${inputHeight + 20}px`;
+}
+
+// Ensure correct layout adjustments
+window.addEventListener('load', updateChatPadding);
+window.addEventListener('resize', updateChatPadding);
