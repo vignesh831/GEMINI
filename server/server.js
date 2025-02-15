@@ -34,7 +34,7 @@ app.post("/chat", async (req, res) => {
 
     // Prepare prompt with history
     const formattedHistory = conversationHistory
-        .map(entry => `${entry.role === "user" ? "User: " : "Gemini: "}${entry.text}`)
+        .map(entry => `${entry.role === "user" ? "User: " : ""}${entry.text}`)
         .join("\n");
 
     try {
