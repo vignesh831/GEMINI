@@ -65,7 +65,7 @@
             align-items: flex-start;
             gap: 12px; /* Space between avatar and text */
            
-            padding: 9px 16px;
+            padding: 9px 5px;
         }
         
         .bot-message {
