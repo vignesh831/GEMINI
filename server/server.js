@@ -15,58 +15,43 @@ app.use(
 app.use(express.json());
 require("dotenv").config(); // Load environment variables
 
-app.post("/chat", async (req, res) => {
-  const { message } = req.body;
-
-  const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 const genAI = new GoogleGenerativeAI("AIzaSyD7aB7IF6NPB74izsMDaJi7h6kztKxgqRo");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-const prompt = message;
+let conversationHistory = []; // Store past messages
 
-const result = await model.generateContent(prompt);
-console.log(result.response.text());
+app.post("/chat", async (req, res) => {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ reply: "Message cannot be empty" });
 
+    // Add user message to history
+    conversationHistory.push({ role: "user", text: message });
 
-res.json({ reply: result.response.text() });
-  // try {
-  //   const pp = message;
-    
-  //   // Initialize the GoogleGenerativeAI client with the API key
-  //   const genAI = new GoogleGenerativeAI({
-  //     apiKey: "AIzaSyD7aB7IF6NPB74izsMDaJi7h6kztKxgqRo"
-  //   });
+    // Keep only the last 5 exchanges to limit history
+    if (conversationHistory.length > 10) {
+        conversationHistory.shift(); // Remove the oldest entry
+    }
 
-  //   // Create an instance of the generative model
-  //   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Prepare prompt with history
+    const formattedHistory = conversationHistory
+        .map(entry => `${entry.role === "user" ? "User: " : "Gemini: "}${entry.text}`)
+        .join("\n");
 
-  //   // The prompt for the generative model
-  //   const prompt = pp;
+    try {
+        const result = await model.generateContent(formattedHistory);
+        const botReply = result.response.text().trim();
 
-  //   // Use await to get the result from the generateContent call
-  //   const result = await model.generateContent({ prompt });
+        // Add AI response to history
+        conversationHistory.push({ role: "bot", text: botReply });
 
-  //   // Accessing and formatting the response text
-  //   const formattedResult = result.response.text
-  //     .replace(/\n/g, '<br>')        // Convert new lines to <br>
-  //     .replace(/(-\s)/g, '<li>')     // Convert bullet points to list items
-  //     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Convert **text** to bold
-
-  //   // Log the formatted response text
-  //   console.log(formattedResult);
-
-  //   // Send the formatted result as JSON
-  //   res.json({ reply: formattedResult });
-
-  // } catch (error) {
-  //   console.error("Error generating content:", error);
-  //   const errorMessage = "Error generating content";
-  //   res.json({ reply: errorMessage });
-  // }
+        res.json({ reply: botReply });
+    } catch (error) {
+        console.error("Error generating response:", error);
+        res.status(500).json({ reply: "Sorry, an error occurred while processing your request." });
+    }
 });
 
 const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
