@@ -102,12 +102,12 @@ userInput.addEventListener('keypress', function(e) {
     }
 });
 
-// Adjust padding dynamically
-function updateChatPadding() {
-    const inputHeight = document.querySelector('.input-wrapper').offsetHeight;
-    chatMessages.style.paddingBottom = `${inputHeight + 20}px`;
-}
+// // Adjust padding dynamically
+// function updateChatPadding() {
+//     const inputHeight = document.querySelector('.input-wrapper').offsetHeight;
+//     chatMessages.style.paddingBottom = `${inputHeight + 20}px`;
+// }
 
-// Ensure correct layout adjustments
-window.addEventListener('load', updateChatPadding);
-window.addEventListener('resize', updateChatPadding);
+// // Ensure correct layout adjustments
+// window.addEventListener('load', updateChatPadding);
+// window.addEventListener('resize', updateChatPadding);
