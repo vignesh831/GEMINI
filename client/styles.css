@@ -209,7 +209,7 @@
             align-items: center; /* Aligns dots with the bot avatar */
             gap: 8px; /* Space between avatar and dots */
             color: #666;
-            padding: 13px 16px;
+            padding: 13px 0px;
         }
 
         .loading-dots {
