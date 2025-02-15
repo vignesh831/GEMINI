@@ -78,7 +78,7 @@
         }
         
         .chat-messages .message:first-child {
-            margin-top: 20px; /* Extra space above first message */
+            margin-top: 0px; /* Extra space above first message */
         }
         
         .avatar {
@@ -210,7 +210,7 @@
             align-items: center; /* Aligns dots with the bot avatar */
             gap: 8px; /* Space between avatar and dots */
             color: #666;
-            padding: 13px 0px;
+            padding: 13px 1px;
         }
 
         .loading-dots {
@@ -240,7 +240,7 @@
             font-size: 0.875rem;
         }
         .chat-messages {
-            padding-bottom: 80px; /* Ensure space above the input box */
+            padding: 16px; /* Ensure space above the input box */
         }
         
         .input-wrapper {
@@ -257,7 +257,7 @@
         }
         
         .chat-messages {
-            padding-bottom: 80px; /* Ensure messages do not overlap with the input */
+            padding-bottom: 16px; /* Ensure messages do not overlap with the input */
             overflow-y: auto; /* Allow scrolling */
         }
         
