@@ -31,7 +31,7 @@ function addLoadingMessage() {
     messageDiv.id = 'loadingMessage';
 
     messageDiv.innerHTML = `
-        <div class="avatar bot-avatar">G</div>
+        <div class="avatar bot-avatar">Ai</div>
         <div class="message-content loading">
             <div class="loading-dots">
                 <span></span><span></span><span></span>
