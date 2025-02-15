@@ -240,7 +240,7 @@
             font-size: 0.875rem;
         }
         .chat-messages {
-            padding: 16px; /* Ensure space above the input box */
+            padding: 10px; /* Ensure space above the input box */
         }
         
         .input-wrapper {
