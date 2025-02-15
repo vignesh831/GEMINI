@@ -61,42 +61,49 @@
         }
 
         .message {
-            margin-bottom: 1.5rem;
             display: flex;
-            gap: 1rem;
+            align-items: flex-start;
+            gap: 12px; /* Space between avatar and text */
+           
+            padding: 12px 16px;
         }
-
-        .message:last-child {
-            margin-bottom: 0;
+        
+        .bot-message {
+            background-color: #f8f9fa; /* Light background */
+            border-radius: 10px;
+            padding: 12px 16px;
+            max-width: 75%;
+            font-size: 16px;
+            line-height: 1.6;
         }
-
+        
+        .chat-messages .message:first-child {
+            margin-top: 20px; /* Extra space above first message */
+        }
+        
         .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
-
-        .user-avatar {
-            background-color: #e8f0fe;
-            color: #1a73e8;
-        }
-
+        
         .bot-avatar {
-            background-color: #8e24aa;
+            background-color: #8e24aa; /* Purple background */
             color: white;
         }
-
+        
         .message-content {
             flex: 1;
             padding: 0.5rem 0;
             line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
+            padding: 3px 0px;
         }
 
         .message-content p {
@@ -289,4 +296,7 @@
             color: #888; /* Adjust icon color */
             cursor: pointer;
         }
+
+        
+        
         
