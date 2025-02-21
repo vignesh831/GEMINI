@@ -48,7 +48,7 @@ async function sendMessage() {
     addLoadingMessage();
 
     try {
-        const response = await fetch('https://geminiapi-alpha.vercel.app/chat', {
+        const response = await fetch('http://localhost:5000/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message })
