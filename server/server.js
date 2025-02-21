@@ -16,7 +16,7 @@ app.use(express.json());
 require("dotenv").config(); // Load environment variables
 
 const genAI = new GoogleGenerativeAI("AIzaSyD7aB7IF6NPB74izsMDaJi7h6kztKxgqRo");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 let conversationHistory = []; // Store past messages
 
