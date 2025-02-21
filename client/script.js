@@ -2,6 +2,18 @@ const chatMessages = document.getElementById('chatMessages');
 const userInput = document.getElementById('userInput');
 const sendButton = document.getElementById('sendButton');
 
+function formatMessage(text) {
+    let paragraphs = text.split(/\n\n+/).map(para => {
+        para = para.replace(/\*(.*?)\*/g, '<em>$1</em>')  // Italics
+                   .replace(/`([^`]+)`/g, '<code>$1</code>') // Inline code
+                   .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => 
+                        `<pre><code>${code.trim()}</code></pre>`
+                   );
+        return `<p>${para.trim()}</p>`;
+    });
+
+    return paragraphs.join('');
+}
 
 function autoResize(textarea) {
     textarea.style.height = 'auto';
@@ -48,7 +60,7 @@ async function sendMessage() {
     addLoadingMessage();
 
     try {
-        const response = await fetch('http://localhost:5000/chat', {
+        const response = await fetch('https://geminiapi-alpha.vercel.app/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message })
@@ -102,6 +114,7 @@ userInput.addEventListener('keypress', function(e) {
 // Function to format AI responses and add copy button for code blocks
 // Function to format AI responses and add copy button for code blocks
 function formatMessage(text) {
+    // Escape HTML special characters to prevent rendering issues
     function escapeHTML(str) {
         return str.replace(/&/g, "&amp;")
                   .replace(/</g, "&lt;")
@@ -109,19 +122,22 @@ function formatMessage(text) {
                   .replace(/"/g, "&quot;")
                   .replace(/'/g, "&#039;");
     }
-
     text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Convert bold
     .replace(/\*(.*?)\*/g, '<i>$1</i>'); // Convert italics
-
+    // Split text by triple backticks to isolate code blocks
     let parts = text.split(/```(\w+)?\n([\s\S]*?)```/g);
     let formattedText = "";
 
     for (let i = 0; i < parts.length; i++) {
         if (i % 3 === 0) {
+            // Regular text (not inside backticks)
             formattedText += `<p>${parts[i].trim()}</p>`;
         } else if (i % 3 === 1) {
+            // Programming language (if specified)
             let language = parts[i] ? `language-${parts[i]}` : "language-plaintext";
             let codeContent = escapeHTML(parts[i + 1].trim());
+
+            // Add code container with copy button
             formattedText += `
                 <div class="code-container">
                     <button class="copy-button" onclick="copyToClipboard(this)">Copy</button>
@@ -130,9 +146,11 @@ function formatMessage(text) {
             `;
         }
     }
+
     return formattedText;
 }
 
+// Function to copy code to clipboard
 function copyToClipboard(button) {
     const codeElement = button.nextElementSibling.querySelector("code");
     const textArea = document.createElement("textarea");
@@ -144,7 +162,6 @@ function copyToClipboard(button) {
     button.innerText = "Copied!";
     setTimeout(() => button.innerText = "Copy", 1500);
 }
-
 
 
 // Example usage in the chatbot response handling function
